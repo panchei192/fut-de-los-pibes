@@ -137,6 +137,19 @@ form{display:flex;flex-direction:column;gap:16px}
 .potm{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:12px 14px;border-radius:10px;background:linear-gradient(90deg,#3a2f0b,#1b231e);border:1px solid #6b5716}
 .potm-tag{font-family:var(--display);font-weight:800;font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
 .potm .av{width:40px;height:40px}
+.teams{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:stretch}
+@media (max-width:560px){.teams{grid-template-columns:1fr}.teams .vs{text-align:center}}
+.team{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.team.win{border-color:var(--good)}
+.team-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-family:var(--display);font-weight:800;font-size:18px;text-transform:uppercase;letter-spacing:.04em}
+.team-h b{font-size:30px;line-height:1}
+.team.win .team-h b{color:var(--good)}
+.team-l{font-size:14px;color:var(--fg)}
+.vs{align-self:center;font-family:var(--display);font-weight:800;color:var(--muted);text-transform:uppercase}
+.seg{display:flex;gap:4px}
+.seg .chip span{min-height:34px;padding:0 12px}
+.gen{display:flex;flex-direction:column;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px}
+.guest-name{min-width:0;flex:1 1 160px}
 .brand-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .pill.open{background:#1f4d2c;color:#9ff0b5}
 .pill.closed{background:var(--panel2);color:var(--muted)}
@@ -373,7 +386,7 @@ const store={
 /* ---------- cálculo de stats ---------- */
 function compute(){
   const out={};
-  ST.players.forEach(p=>{const b=p.base||{};out[p.id]={ovr:num(p.ovr,60),stats:Object.fromEntries(K.map(k=>[k,num(b[k],50)])),hist:[],last:0,pj:0,g:0,a:0,mvp:0,notas:[]}});
+  ST.players.forEach(p=>{const b=p.base||{};out[p.id]={ovr:num(p.ovr,60),stats:Object.fromEntries(K.map(k=>[k,num(b[k],50)])),hist:[],last:0,pj:0,g:0,a:0,mvp:0,pg:0,pe:0,pp:0,notas:[]}});
   const ms=ST.matches.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))||(a.createdAt||0)-(b.createdAt||0));
   const res={};
   ms.forEach(m=>{
@@ -389,17 +402,23 @@ function compute(){
       const avg=rs.length?rs.reduce((x,y)=>x+y,0)/rs.length:null;
       const d=avg==null?0:clamp(Math.round((avg-6)/1.5),-3,3);
       const isMvp=mvps.includes(pid);
-      c.pj++;c.g+=g;c.a+=a;if(isMvp)c.mvp++;if(avg!=null)c.notas.push(avg);
+      const res1=outcome(m,(m.teams||{})[pid]);
+      c.pj++;c.g+=g;c.a+=a;if(isMvp)c.mvp++;if(avg!=null)c.notas.push(avg);if(res1==='G')c.pg++;else if(res1==='E')c.pe++;else if(res1==='P')c.pp++;
       let sum=0;
       K.forEach(k=>{const before=c.stats[k];let add=d+(isMvp?1:0);if(k==='tir')add+=Math.min(g,2);if(k==='pas')add+=Math.min(a,2);c.stats[k]=clamp(before+add,1,99);sum+=c.stats[k]-before});
       const od=Math.round(sum/6);c.ovr=clamp(c.ovr+od,40,99);c.last=od;
-      c.hist.push({mid:m.id,avg,n:rs.length,od,isMvp,g,a});
-      rows.push({pid,avg,n:rs.length,od,isMvp,g,a});
+      c.hist.push({mid:m.id,avg,n:rs.length,od,isMvp,g,a,res:res1});
+      rows.push({pid,avg,n:rs.length,od,isMvp,g,a,team:(m.teams||{})[pid]||''});
     });
     res[m.id]={rows,votes:votes.length};
   });
   return{players:out,matches:res};
 }
+/* resultado del partido para un equipo: G, E, P o null si falta el marcador */
+const score=v=>v===''||v==null?null:num(v,null);
+function hasScore(m){return score(m.scoreA)!=null&&score(m.scoreB)!=null}
+function outcome(m,team){if(!team||!hasScore(m))return null;const a=score(m.scoreA),b=score(m.scoreB);if(a===b)return'E';return (a>b)===(team==='A')?'G':'P'}
+const teamName=(m,t)=>(t==='A'?m.nameA:m.nameB)||('Equipo '+t);
 function tierOf(p,c){if(p.special==='toty')return'toty';if(c.ovr>=75)return'gold';if(c.ovr>=65)return'silver';return'bronze'}
 
 function cardHTML(p,c,big){
@@ -436,9 +455,9 @@ function render(){
   $('#matches').innerHTML=ms.length?ms.map(m=>matchHTML(m,C)).join(''):'<div class="empty">Todavía no hay partidos.</div>';
 
   const rows=ps.map(p=>({p,c:C.players[p.id]})).sort((x,y)=>y.c.g-x.c.g||y.c.a-x.c.a||y.c.mvp-x.c.mvp);
-  $('#tabla').innerHTML=`<div class="box scroll"><table class="res"><thead><tr><th>#</th><th>Jugador</th><th class="num">Goles</th><th class="num">Asist.</th><th class="num">MVP</th><th class="num">PJ</th><th class="num">Nota prom.</th><th class="num">Media</th></tr></thead><tbody>${
+  $('#tabla').innerHTML=`<div class="box scroll"><table class="res"><thead><tr><th>#</th><th>Jugador</th><th class="num">Goles</th><th class="num">Asist.</th><th class="num">MVP</th><th class="num">PJ</th><th class="num" title="Ganados">PG</th><th class="num" title="Empatados">PE</th><th class="num" title="Perdidos">PP</th><th class="num">Nota prom.</th><th class="num">Media</th></tr></thead><tbody>${
     rows.map((r,i)=>{const prom=r.c.notas.length?(r.c.notas.reduce((a,b)=>a+b,0)/r.c.notas.length).toFixed(1):'–';
-      return `<tr><td>${i+1}</td><td><div class="who">${avatar(r.p.id)}<span>${esc(r.p.name)}</span></div></td><td class="num"><strong>${r.c.g}</strong></td><td class="num">${r.c.a}</td><td class="num">${r.c.mvp}</td><td class="num">${r.c.pj}</td><td class="num">${prom}</td><td class="num">${r.c.ovr}</td></tr>`}).join('')
+      return `<tr><td>${i+1}</td><td><div class="who">${avatar(r.p.id)}<span>${esc(r.p.name)}</span></div></td><td class="num"><strong>${r.c.g}</strong></td><td class="num">${r.c.a}</td><td class="num">${r.c.mvp}</td><td class="num">${r.c.pj}</td><td class="num up">${r.c.pg}</td><td class="num">${r.c.pe}</td><td class="num down">${r.c.pp}</td><td class="num">${prom}</td><td class="num">${r.c.ovr}</td></tr>`}).join('')
   }</tbody></table></div>`;
 }
 function matchHTML(m,C){
@@ -452,13 +471,19 @@ function matchHTML(m,C){
   const potm=stars.length?`<div class="potm"><span class="potm-tag">${stars.length>1?'Jugadores del partido':'Jugador del partido'}</span>${stars.map(x=>`<div class="who">${avatar(x.pid)}<strong>${esc(P(x.pid).name)}</strong>${x.avg!=null?`<span class="note">nota ${x.avg.toFixed(1)}</span>`:''}</div>`).join('')}</div>`:'';
   const acts=(open||IS_ADMIN?`<button class="btn primary small" type="button" data-vote="${esc(m.id)}">Votar</button>`:'')+
     (IS_ADMIN?`${allVoted?'':`<button class="btn small" type="button" data-toggle="${esc(m.id)}">${open?'Cerrar votación':'Abrir votación'}</button>`}<button class="btn small" type="button" data-editmatch="${esc(m.id)}">Editar</button>`:'');
+  const tm=m.teams||{},guests=m.guests||[];
+  const lineup=t=>[...(m.players||[]).filter(pid=>P(pid)&&tm[pid]===t).map(pid=>esc(P(pid).name)),
+    ...guests.filter(g=>g.team===t).map(g=>{const gg=num((m.goals||{})[g.id],0);return `${esc(g.name)} <span class="note">(inv.${gg?' · '+gg+' gol'+(gg>1?'es':''):''})</span>`})];
+  const LA=lineup('A'),LB=lineup('B'),sc=hasScore(m);
+  const teamBox=(t,L)=>{const o=sc?outcome(m,t):null;return `<div class="team${o==='G'?' win':''}"><div class="team-h"><span>${esc(teamName(m,t))}</span>${sc?`<b>${score(t==='A'?m.scoreA:m.scoreB)}</b>`:''}</div><div class="team-l">${L.join(', ')||'<span class="note">Sin jugadores</span>'}</div></div>`};
+  const teamsHTML=LA.length||LB.length?`<div class="teams">${teamBox('A',LA)}<div class="vs">vs</div>${teamBox('B',LB)}</div>`:'';
   return `<article class="match">
     <div class="match-head">
-      <div><h3>${esc(m.title||'Partido')}</h3><div class="meta"><span>${fmtDate(m.date)}</span><span>·</span><span>${(m.players||[]).length} jugadores</span><span>·</span><span>${r.votes} ${r.votes===1?'voto':'votos'}</span>${m.result?`<span>·</span><span>${esc(m.result)}</span>`:''}<span class="pill ${open?'open':'closed'}">${open?`Votación abierta · votaron ${r.votes} de ${total}`:allVoted?'Votación terminada':'Votación cerrada'}</span></div></div>
+      <div><h3>${esc(m.title||'Partido')}</h3><div class="meta"><span>${fmtDate(m.date)}</span><span>·</span><span>${(m.players||[]).length+guests.length} jugadores</span><span>·</span><span>${r.votes} ${r.votes===1?'voto':'votos'}</span>${m.result&&!sc?`<span>·</span><span>${esc(m.result)}</span>`:''}<span class="pill ${open?'open':'closed'}">${open?`Votación abierta · votaron ${r.votes} de ${total}`:allVoted?'Votación terminada':'Votación cerrada'}</span></div></div>
       <div class="actions">${acts}</div>
-    </div>${potm}
-    <div class="scroll"><table class="res"><thead><tr><th>Jugador</th><th class="num">Nota</th><th class="num">Goles</th><th class="num">Asist.</th><th class="num">Media</th></tr></thead><tbody>${
-      rows.map(x=>`<tr><td><div class="who">${avatar(x.pid)}<span>${esc(P(x.pid).name)}</span>${x.isMvp&&done?' <span class="pill mvp">MVP</span>':''}</div></td><td class="num">${x.avg!=null?x.avg.toFixed(1):'–'}</td><td class="num">${x.g||'–'}</td><td class="num">${x.a||'–'}</td><td class="num ${cls(x.od)}">${x.od?sign(x.od):'–'}</td></tr>`).join('')
+    </div>${teamsHTML}${potm}
+    <div class="scroll"><table class="res"><thead><tr><th>Jugador</th><th>Eq.</th><th class="num">Nota</th><th class="num">Goles</th><th class="num">Asist.</th><th class="num">Media</th></tr></thead><tbody>${
+      rows.map(x=>`<tr><td><div class="who">${avatar(x.pid)}<span>${esc(P(x.pid).name)}</span>${x.isMvp&&done?' <span class="pill mvp">MVP</span>':''}</div></td><td>${x.team?esc(x.team):'–'}</td><td class="num">${x.avg!=null?x.avg.toFixed(1):'–'}</td><td class="num">${x.g||'–'}</td><td class="num">${x.a||'–'}</td><td class="num ${cls(x.od)}">${x.od?sign(x.od):'–'}</td></tr>`).join('')
     }</tbody></table></div>
   </article>`;
 }
@@ -554,26 +579,69 @@ function openPlayerForm(id){
   });
 }
 
-/* partido: quién jugó, goles, asistencias y si la votación está abierta */
+/* armar equipos parejos según la media actual, evitando repetir compañeros de los últimos partidos */
+function makeTeams(items){ // items: [{key, ovr, guest}]
+  const C=compute();
+  const recent=ST.matches.filter(m=>m.teams&&Object.keys(m.teams).length)
+    .sort((a,b)=>String(b.date).localeCompare(String(a.date))||(b.createdAt||0)-(a.createdAt||0)).slice(0,4);
+  const pair={};
+  recent.forEach((m,i)=>{const w=4-i;const ids=Object.keys(m.teams);
+    ids.forEach(x=>ids.forEach(y=>{if(x<y&&m.teams[x]===m.teams[y])pair[x+'|'+y]=(pair[x+'|'+y]||0)+w}))});
+  const rep=team=>{let r=0;for(let i=0;i<team.length;i++)for(let j=i+1;j<team.length;j++){const x=team[i].key,y=team[j].key;r+=pair[x<y?x+'|'+y:y+'|'+x]||0}return r};
+  const sum=t=>t.reduce((s,x)=>s+x.ovr,0);
+  const seen=new Map();
+  for(let it=0;it<4000;it++){
+    const sh=items.slice();for(let i=sh.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[sh[i],sh[j]]=[sh[j],sh[i]]}
+    const h=sh.length%2&&Math.random()<.5?Math.ceil(sh.length/2):Math.floor(sh.length/2);
+    const A=sh.slice(0,h),B=sh.slice(h);
+    const sig=A.map(x=>x.key).sort().join(',');const sigB=B.map(x=>x.key).sort().join(',');
+    const key=sig<sigB?sig:sigB;if(seen.has(key))continue;
+    const diff=Math.abs(sum(A)-sum(B)),repeats=rep(A)+rep(B);
+    seen.set(key,{A,B,diff,repeats,cost:diff+1.5*repeats});
+  }
+  const best=[...seen.values()].sort((a,b)=>a.cost-b.cost).slice(0,6);
+  return best[Math.floor(Math.random()*best.length)];
+}
+
+/* partido: fecha, equipos, marcador, invitados, goles y asistencias */
 function openMatchForm(mid){
   if(!IS_ADMIN)return;
-  const m=mid?ST.matches.find(x=>x.id===mid):{title:'',date:today(),result:'',players:ST.players.map(p=>p.id),goals:{},assists:{},votingOpen:true};
+  const m=mid?ST.matches.find(x=>x.id===mid):{title:'',date:today(),players:[],teams:{},guests:[],goals:{},assists:{},votingOpen:true};
   if(!m)return;
+  const tm=m.teams||{};
   const ids=ST.players.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name))).map(p=>p.id);
+  const seg=(name,val)=>`<div class="seg" role="radiogroup" aria-label="Equipo">${['A','B'].map(t=>`<label class="chip"><input type="radio" name="${name}" value="${t}"${val===t?' checked':''}><span>${t}</span></label>`).join('')}</div>`;
+  const gaHTML=(key,g,a)=>`<div class="ga"><label class="lbl" for="g-${esc(key)}">Goles</label><input class="input" id="g-${esc(key)}" type="number" inputmode="numeric" min="0" max="30" value="${num(g,0)}">
+          <label class="lbl" for="a-${esc(key)}">Asist.</label><input class="input" id="a-${esc(key)}" type="number" inputmode="numeric" min="0" max="30" value="${num(a,0)}"></div>`;
+  const guestRow=g=>`<div class="prow" data-guest="${esc(g.id)}"><div class="prow-head">
+      <input class="input guest-name" maxlength="18" placeholder="Nombre del invitado" value="${esc(g.name||'')}" aria-label="Nombre del invitado">
+      ${seg('t-'+g.id,g.team)}<button class="btn small danger" type="button" data-rmguest>Quitar</button></div>
+      ${gaHTML(g.id,(m.goals||{})[g.id],(m.assists||{})[g.id])}</div>`;
   openSheet(head(mid?'Editar partido':'Nuevo partido')+`
     <form id="mform" novalidate>
       <div class="row">
         <div class="field"><label for="mf-title">Nombre</label><input class="input" id="mf-title" maxlength="40" value="${esc(m.title)}" placeholder="Ej: Fútbol 5 del jueves"></div>
         <div class="field"><label for="mf-date">Fecha</label><input class="input" id="mf-date" type="date" value="${esc(m.date||today())}"></div>
-        <div class="field"><label for="mf-res">Resultado</label><input class="input" id="mf-res" maxlength="20" value="${esc(m.result||'')}" placeholder="Ej: 7 a 5"></div>
       </div>
+      <div class="row">
+        <div class="field"><label for="mf-na">Equipo A</label><input class="input" id="mf-na" maxlength="20" value="${esc(m.nameA||'')}" placeholder="Equipo A"></div>
+        <div class="field"><label for="mf-sa">Goles A</label><input class="input" id="mf-sa" type="number" inputmode="numeric" min="0" max="99" value="${score(m.scoreA)??''}" placeholder="–"></div>
+        <div class="field"><label for="mf-nb">Equipo B</label><input class="input" id="mf-nb" maxlength="20" value="${esc(m.nameB||'')}" placeholder="Equipo B"></div>
+        <div class="field"><label for="mf-sb">Goles B</label><input class="input" id="mf-sb" type="number" inputmode="numeric" min="0" max="99" value="${score(m.scoreB)??''}" placeholder="–"></div>
+      </div>
+      <p class="note" style="margin-top:-8px">El marcador lo podés dejar vacío y cargarlo después del partido.</p>
       <label class="check"><input type="checkbox" id="mf-open"${m.votingOpen?' checked':''}> Votación abierta (todos pueden votar)</label>
-      <div class="field"><span class="lbl">Quién jugó, goles y asistencias</span>
+      <div class="gen">
+        <div class="bar"><span class="lbl">Armar equipos</span><button class="btn small primary" type="button" id="mf-gen">Generar equipos</button></div>
+        <p class="note" id="mf-gen-info">Marcá quién juega y tocá “Generar equipos”. Los arma parejos según la media de cada carta y trata de no repetir los compañeros de los últimos partidos. Si no te gusta, tocá otra vez.</p>
+      </div>
+      <div class="field"><span class="lbl">Quién jugó, equipo, goles y asistencias</span>
         ${ids.map(pid=>`<div class="prow"><div class="prow-head">
           <label class="check"><input type="checkbox" name="mp" value="${esc(pid)}"${(m.players||[]).includes(pid)?' checked':''}> <span class="who">${avatar(pid)}<strong>${esc(P(pid).name)}</strong></span></label>
-          <div class="ga"><label class="lbl" for="g-${esc(pid)}">Goles</label><input class="input" id="g-${esc(pid)}" type="number" inputmode="numeric" min="0" max="30" value="${num((m.goals||{})[pid],0)}">
-          <label class="lbl" for="a-${esc(pid)}">Asist.</label><input class="input" id="a-${esc(pid)}" type="number" inputmode="numeric" min="0" max="30" value="${num((m.assists||{})[pid],0)}"></div>
-        </div></div>`).join('')}
+          ${seg('t-'+pid,tm[pid])}</div>
+          ${gaHTML(pid,(m.goals||{})[pid],(m.assists||{})[pid])}</div>`).join('')}
+        <div id="mf-guests">${(m.guests||[]).map(guestRow).join('')}</div>
+        <div><button class="btn small" type="button" id="mf-addguest">+ Agregar invitado</button></div>
       </div>
       <div class="err" id="mf-err" hidden></div>
       <div class="foot">
@@ -583,15 +651,42 @@ function openMatchForm(mid){
       </div>
     </form>`,
   sh=>{
-    const err=sh.querySelector('#mf-err');
+    const err=sh.querySelector('#mf-err'),gbox=sh.querySelector('#mf-guests');
+    const teamOf=key=>{const r=sh.querySelector(`input[name="t-${CSS.escape(key)}"]:checked`);return r?r.value:''};
+    const setTeam=(key,t)=>{const r=sh.querySelector(`input[name="t-${CSS.escape(key)}"][value="${t}"]`);if(r)r.checked=true};
+    // al elegir equipo se marca solo que jugó
+    sh.querySelector('#mform').addEventListener('change',e=>{const n=e.target.name||'';if(n.startsWith('t-')){const cb=sh.querySelector(`input[name=mp][value="${CSS.escape(n.slice(2))}"]`);if(cb)cb.checked=true}});
+    sh.querySelector('#mf-addguest').onclick=()=>{const g={id:'g'+uid().slice(1),name:'',team:''};gbox.insertAdjacentHTML('beforeend',guestRow(g));gbox.lastElementChild.querySelector('.guest-name').focus()};
+    gbox.addEventListener('click',e=>{const b=e.target.closest('[data-rmguest]');if(b)b.closest('[data-guest]').remove()});
+    sh.querySelector('#mf-gen').onclick=()=>{
+      const C=compute();
+      const sel=[...sh.querySelectorAll('input[name=mp]:checked')].map(i=>({key:i.value,ovr:C.players[i.value]?C.players[i.value].ovr:65}));
+      const avgOvr=sel.length?sel.reduce((s,x)=>s+x.ovr,0)/sel.length:65;
+      const gs=[...gbox.querySelectorAll('[data-guest]')].filter(r=>r.querySelector('.guest-name').value.trim()).map(r=>({key:r.dataset.guest,ovr:avgOvr,guest:true}));
+      const items=sel.concat(gs);const info=sh.querySelector('#mf-gen-info');
+      if(items.length<2){info.textContent='Marcá al menos dos jugadores.';return}
+      const best=makeTeams(items);
+      best.A.forEach(x=>setTeam(x.key,'A'));best.B.forEach(x=>setTeam(x.key,'B'));
+      const avg=t=>(t.reduce((s,x)=>s+x.ovr,0)/t.length).toFixed(1);
+      const nm=k=>{const p=P(k);if(p)return esc(p.name);const r=gbox.querySelector(`[data-guest="${CSS.escape(k)}"] .guest-name`);return r?esc(r.value.trim())+' (inv.)':''};
+      info.innerHTML=`<b>A</b> (${best.A.length}, media ${avg(best.A)}): ${best.A.map(x=>nm(x.key)).join(', ')}<br><b>B</b> (${best.B.length}, media ${avg(best.B)}): ${best.B.map(x=>nm(x.key)).join(', ')}<br>Es de las opciones más parejas que menos repiten compañeros recientes. Tocá otra vez para otra opción.`;
+    };
     sh.querySelector('#mf-cancel').onclick=closeSheet;
     const del=sh.querySelector('#mf-del');
     if(del)del.onclick=()=>{if(del.dataset.sure){save(()=>store.deleteMatch(mid),'Partido borrado',err)}else{del.dataset.sure='1';del.textContent='Tocá otra vez (se pierden los votos)'}};
     sh.querySelector('#mform').onsubmit=e=>{e.preventDefault();
       const players=[...sh.querySelectorAll('input[name=mp]:checked')].map(i=>i.value);
-      if(players.length<2){err.textContent='Marcá al menos dos jugadores.';err.hidden=false;return}
-      const goals={},assists={};players.forEach(pid=>{const g=num(sh.querySelector('#g-'+CSS.escape(pid)).value,0),a=num(sh.querySelector('#a-'+CSS.escape(pid)).value,0);if(g>0)goals[pid]=clamp(g,0,30);if(a>0)assists[pid]=clamp(a,0,30)});
-      const data={title:sh.querySelector('#mf-title').value.trim()||'Partido',date:sh.querySelector('#mf-date').value||today(),result:sh.querySelector('#mf-res').value.trim(),players,goals,assists,votingOpen:sh.querySelector('#mf-open').checked};
+      const guests=[...gbox.querySelectorAll('[data-guest]')].map(r=>({id:r.dataset.guest,name:r.querySelector('.guest-name').value.trim(),team:teamOf(r.dataset.guest)})).filter(g=>g.name);
+      if(players.length+guests.length<2){err.textContent='Marcá al menos dos jugadores.';err.hidden=false;return}
+      const goals={},assists={},teams={};
+      players.concat(guests.map(g=>g.id)).forEach(key=>{const g=num(sh.querySelector('#g-'+CSS.escape(key)).value,0),a=num(sh.querySelector('#a-'+CSS.escape(key)).value,0);if(g>0)goals[key]=clamp(g,0,30);if(a>0)assists[key]=clamp(a,0,30)});
+      players.forEach(pid=>{const t=teamOf(pid);if(t)teams[pid]=t});
+      const sa=sh.querySelector('#mf-sa').value.trim(),sb=sh.querySelector('#mf-sb').value.trim();
+      if((sa==='')!==(sb==='')){err.textContent='Poné los goles de los dos equipos (o dejá los dos vacíos).';err.hidden=false;return}
+      const data={title:sh.querySelector('#mf-title').value.trim()||'Partido',date:sh.querySelector('#mf-date').value||today(),
+        nameA:sh.querySelector('#mf-na').value.trim(),nameB:sh.querySelector('#mf-nb').value.trim(),
+        scoreA:sa===''?null:clamp(num(sa,0),0,99),scoreB:sb===''?null:clamp(num(sb,0),0,99),
+        players,teams,guests,goals,assists,votingOpen:sh.querySelector('#mf-open').checked};
       save(()=>store.saveMatch(mid||uid(),data),'Partido guardado',err);
     };
   });
