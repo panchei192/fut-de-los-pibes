@@ -13,4 +13,4 @@ export const FIREBASE_CONFIG = {
 
 // Tu UID de administrador. La web te lo muestra la primera vez que tocás "Admin"
 // y entrás con tu cuenta de Google. Pegalo acá y también en firestore.rules.
-export const ADMIN_UID = "PEGAR_TU_UID";
+export const ADMIN_UID = "8Efjq9lF6kTbTV9uvx7N8hzWW8k2";
