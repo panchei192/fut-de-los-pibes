@@ -1,0 +1,46 @@
+rules_version = '2';
+// Copiá todo esto en Firebase → Firestore Database → Reglas → Publicar.
+// Reemplazá PEGAR_TU_UID por tu UID (el mismo de firebase-config.js).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null && request.auth.uid == 'PEGAR_TU_UID';
+    }
+
+    // Cartas: todos las ven, solo el admin las crea/edita/borra.
+    match /players/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Partidos (goles, asistencias, votación abierta/cerrada): solo el admin.
+    match /matches/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Votos: cualquiera (con sesión anónima) vota si la votación está abierta.
+    // Un voto solo lo puede cambiar el mismo dispositivo que lo hizo (o el admin).
+    match /votes/{voteId} {
+      allow read: if true;
+      allow delete: if isAdmin();
+      allow create, update: if request.auth != null
+        && (resource == null || resource.data.uid == request.auth.uid || isAdmin())
+        && validVote(voteId, request.resource.data);
+    }
+
+    function validVote(voteId, d) {
+      let m = get(/databases/$(database)/documents/matches/$(d.mid)).data;
+      return d.keys().hasOnly(['mid', 'voter', 'ratings', 'mvp', 'uid', 'at'])
+        && d.mid is string && d.voter is string
+        && voteId == d.mid + '__' + d.voter
+        && d.uid == request.auth.uid
+        && d.ratings is map && d.ratings.size() <= 40
+        && d.mvp is string && (d.mvp == '' || d.mvp in m.players)
+        && d.at is int
+        && d.voter in m.players
+        && (m.votingOpen == true || isAdmin());
+    }
+  }
+}

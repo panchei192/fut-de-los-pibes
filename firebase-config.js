@@ -1,0 +1,16 @@
+// Pegá acá la configuración de tu app web de Firebase
+// (Consola de Firebase → ⚙ Configuración del proyecto → Tus apps → SDK config).
+// Estos datos NO son secretos: lo que protege la web son las reglas de firestore.rules.
+// Mientras diga PEGAR..., la web funciona en "modo prueba" (solo guarda en tu navegador).
+export const FIREBASE_CONFIG = {
+  apiKey: "PEGAR_API_KEY",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: ""
+};
+
+// Tu UID de administrador. La web te lo muestra la primera vez que tocás "Admin"
+// y entrás con tu cuenta de Google. Pegalo acá y también en firestore.rules.
+export const ADMIN_UID = "PEGAR_TU_UID";

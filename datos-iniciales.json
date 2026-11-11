@@ -1,0 +1,16 @@
+{
+  "players": [
+    {"id":"j2","name":"Jugador 1","pos":"DC","ovr":82,"special":"toty","trait":"Calentón","photo":"fotos/j2.webp","base":{"rit":80,"tir":86,"pas":52,"reg":79,"def":58,"fis":90}},
+    {"id":"j1","name":"Taliban","pos":"DFC","ovr":74,"special":"","trait":"","photo":"fotos/j1.webp","base":{"rit":34,"tir":72,"pas":41,"reg":66,"def":74,"fis":78}},
+    {"id":"j3","name":"Jugador 3","pos":"MC","ovr":73,"special":"","trait":"","photo":"fotos/j3.webp","base":{"rit":73,"tir":73,"pas":73,"reg":73,"def":73,"fis":73}},
+    {"id":"j4","name":"Jugador 4","pos":"MC","ovr":71,"special":"","trait":"","photo":"fotos/j4.webp","base":{"rit":71,"tir":71,"pas":71,"reg":71,"def":71,"fis":71}},
+    {"id":"j5","name":"Jugador 5","pos":"MC","ovr":70,"special":"","trait":"","photo":"fotos/j5.webp","base":{"rit":70,"tir":70,"pas":70,"reg":70,"def":70,"fis":70}},
+    {"id":"j6","name":"Jugador 6","pos":"MC","ovr":68,"special":"","trait":"","photo":"fotos/j6.webp","base":{"rit":68,"tir":68,"pas":68,"reg":68,"def":68,"fis":68}},
+    {"id":"j7","name":"Jugador 7","pos":"MC","ovr":67,"special":"","trait":"","photo":"fotos/j7.webp","base":{"rit":67,"tir":67,"pas":67,"reg":67,"def":67,"fis":67}},
+    {"id":"j8","name":"Jugador 8","pos":"MC","ovr":65,"special":"","trait":"","photo":"fotos/j8.webp","base":{"rit":65,"tir":65,"pas":65,"reg":65,"def":65,"fis":65}},
+    {"id":"j9","name":"Jugador 9","pos":"MC","ovr":64,"special":"","trait":"","photo":"fotos/j9.webp","base":{"rit":64,"tir":64,"pas":64,"reg":64,"def":64,"fis":64}},
+    {"id":"j10","name":"Jugador 10","pos":"MC","ovr":62,"special":"","trait":"","photo":"fotos/j10.webp","base":{"rit":62,"tir":62,"pas":62,"reg":62,"def":62,"fis":62}},
+    {"id":"j11","name":"Jugador 11","pos":"MC","ovr":60,"special":"","trait":"","photo":"fotos/j11.webp","base":{"rit":60,"tir":60,"pas":60,"reg":60,"def":60,"fis":60}}
+  ],
+  "matches": []
+}

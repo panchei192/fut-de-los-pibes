@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>FUT de los Pibes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#0b0f0c; --panel:#141a16; --panel2:#1b231e; --line:#2a352e;
+  --fg:#eef3ec; --muted:#a2aea5; --accent:#f2c94c; --accent-ink:#1e1600;
+  --good:#5fd37f; --bad:#ff8574;
+  --display:'Barlow Condensed','Arial Narrow',sans-serif;
+  --body:'Barlow',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45}
+img{max-width:100%}
+[hidden]{display:none!important}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+header.top{background:repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0 64px,rgba(255,255,255,0) 64px 128px),linear-gradient(180deg,#132219 0%,var(--bg) 100%);border-bottom:1px solid var(--line)}
+header.top .wrap{padding-block:28px 0;display:flex;flex-direction:column;gap:18px}
+.brand h1{margin:0;font-family:var(--display);font-weight:900;font-size:clamp(38px,7vw,60px);line-height:.9;letter-spacing:.02em;text-transform:uppercase}
+.brand h1 span{color:var(--accent)}
+.brand p{margin:6px 0 0;color:var(--muted);max-width:52ch}
+nav.tabs{display:flex;gap:2px;overflow-x:auto}
+.tab{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px 12px;font-family:var(--display);font-size:20px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent)}
+.banner{background:#3a2f0b;color:#ffe7a0;border-radius:8px;padding:10px 14px;font-size:14px}
+
+main .wrap{padding-block:28px 64px}
+section{display:flex;flex-direction:column;gap:22px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.bar h2{margin:0;font-family:var(--display);font-size:26px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:13px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.note{color:var(--muted);font-size:14px;max-width:72ch;margin:0}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;font-weight:600}
+.btn:hover{border-color:#3d4b41}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.danger{color:var(--bad)}
+.btn.small{min-height:36px;padding:0 12px;font-size:14px}
+
+/* cartas */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:22px 16px}
+.slot{display:flex;flex-direction:column;align-items:center;gap:8px}
+.rank{font-family:var(--display);font-weight:700;color:var(--muted);letter-spacing:.08em;font-size:14px}
+.card{container-type:inline-size;position:relative;display:block;width:100%;max-width:250px;aspect-ratio:2/3;border:0;background:none;padding:0;cursor:pointer;color:var(--ct);font-family:var(--display);text-align:center;transition:transform .2s ease;filter:drop-shadow(0 10px 18px rgba(0,0,0,.55))}
+.card:hover{transform:translateY(-4px)}
+.card.big{max-width:280px;cursor:default}.card.big:hover{transform:none}
+.card svg.bg{position:absolute;inset:0;width:100%;height:100%}
+.c-photo{position:absolute;top:9cqw;left:27cqw;width:66cqw;height:70cqw;object-fit:cover;object-position:50% 0;-webkit-mask-image:linear-gradient(#000 72%,transparent);mask-image:linear-gradient(#000 72%,transparent)}
+.c-nophoto{position:absolute;top:16cqw;left:38cqw;width:44cqw;height:56cqw;opacity:.35}
+.c-left{position:absolute;top:17cqw;left:8cqw;width:22cqw;display:flex;flex-direction:column;align-items:center}
+.c-ovr{font-weight:800;font-size:21cqw;line-height:.82;letter-spacing:-.03em}
+.c-pos{font-weight:700;font-size:7.5cqw;line-height:1;margin-top:2cqw}
+.c-delta{margin-top:3cqw;font-weight:700;font-size:5cqw;line-height:1;padding:.8cqw 1.8cqw;border-radius:2cqw;background:rgba(0,0,0,.6);color:#fff}
+.c-delta.up{color:#7dffa0}.c-delta.down{color:#ff9a8c}
+.c-tag{position:absolute;top:4.6cqw;left:0;right:0;font-weight:800;font-size:4.4cqw;letter-spacing:.3em;color:var(--cl)}
+.c-name{position:absolute;top:80cqw;left:7cqw;right:7cqw;font-weight:900;font-size:11.5cqw;line-height:1.05;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-rule{position:absolute;top:94.5cqw;left:16cqw;right:16cqw;height:.45cqw;background:currentColor;opacity:.35}
+.c-stats{position:absolute;top:97cqw;left:9cqw;right:9cqw;display:grid;grid-template-columns:repeat(6,minmax(0,1fr))}
+.c-stats div{display:flex;flex-direction:column;align-items:center}
+.c-stats b{font-weight:600;font-size:4.4cqw;letter-spacing:.06em;color:var(--cl)}
+.c-stats span{font-weight:800;font-size:8.4cqw;line-height:1.05;font-variant-numeric:tabular-nums}
+.c-trait{position:absolute;top:118cqw;left:14cqw;right:14cqw;font-weight:600;font-size:4.3cqw;letter-spacing:.14em;text-transform:uppercase;color:var(--cl);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t-toty{--ct:#f6d67e;--cl:#cdb67a}
+.t-gold{--ct:#2b1c02;--cl:#5a4210}
+.t-silver{--ct:#1d2228;--cl:#47505a}
+.t-bronze{--ct:#2a1507;--cl:#5b3317}
+
+/* partidos y tablas */
+.list{display:flex;flex-direction:column;gap:14px}
+.match{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.match-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.match h3{margin:0;font-family:var(--display);font-size:24px;font-weight:800;text-transform:uppercase}
+.meta{color:var(--muted);font-size:14px;display:flex;gap:8px;flex-wrap:wrap}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.scroll{overflow-x:auto}
+.res{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.res th{text-align:left;color:var(--muted);font-weight:600;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+.res td{padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}
+.res tr:last-child td{border-bottom:0}
+.res .num{text-align:right}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px 10px}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:700}
+.pill.mvp{background:var(--accent);color:var(--accent-ink)}
+.up{color:var(--good)}.down{color:var(--bad)}
+.who{display:flex;align-items:center;gap:10px}
+.av{width:32px;height:32px;border-radius:50%;object-fit:cover;object-position:50% 10%;background:var(--panel2);flex:none}
+.empty{border:1px dashed var(--line);border-radius:12px;padding:28px;text-align:center;color:var(--muted)}
+
+/* ventanas */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:50;display:flex;justify-content:center;align-items:flex-start;overflow-y:auto;padding:calc(20px + env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px))}
+.sheet{background:var(--panel);border:1px solid var(--line);border-radius:14px;width:100%;max-width:720px;padding:20px;display:flex;flex-direction:column;gap:18px}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.sheet h2{margin:0;font-family:var(--display);font-size:28px;font-weight:800;text-transform:uppercase}
+.x{width:44px;height:44px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;display:grid;place-items:center;flex:none}
+form{display:flex;flex-direction:column;gap:16px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field label,.lbl{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.input{min-height:44px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--bg);width:100%}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px}
+.stats6{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+@media (max-width:520px){.stats6{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.check{display:flex;align-items:center;gap:10px;min-height:44px}
+.check input{width:20px;height:20px;accent-color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0;inset:0;cursor:pointer;margin:0}
+.chip span{display:inline-flex;align-items:center;min-height:38px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--bg);font-size:14px;font-weight:600;cursor:pointer}
+.chip input:checked+span{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.chip input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.scale{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px}
+.scale .chip span{width:100%;justify-content:center;padding:0;border-radius:8px;font-family:var(--display);font-size:18px;font-weight:700}
+.prow{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:10px}
+.prow-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.prow-head strong{font-family:var(--display);font-size:20px;text-transform:uppercase;letter-spacing:.04em}
+.ga{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.ga .input{width:72px;text-align:center}
+.foot{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:16px}
+.err{color:var(--bad);font-size:14px}
+.detail{display:grid;grid-template-columns:minmax(0,280px) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:620px){.detail{grid-template-columns:1fr;justify-items:center}}
+.detail .info{display:flex;flex-direction:column;gap:14px;width:100%}
+.photo-pick{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.photo-pick img{width:72px;height:72px;border-radius:10px;object-fit:cover;object-position:50% 10%;background:var(--bg)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:600;z-index:60}
+.brand-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.pill.open{background:#1f4d2c;color:#9ff0b5}
+.pill.closed{background:var(--panel2);color:var(--muted)}
+.uid{font-family:ui-monospace,Consolas,monospace;word-break:break-all;background:var(--bg);padding:10px 12px;border-radius:8px;border:1px solid var(--line)}
+@media (prefers-reduced-motion:reduce){.card{transition:none}.card:hover{transform:none}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="g-goldrim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3c2"/><stop offset=".25" stop-color="#c8962f"/><stop offset=".5" stop-color="#ffe7a0"/><stop offset=".75" stop-color="#9a6b19"/><stop offset="1" stop-color="#f6d57c"/></linearGradient>
+    <linearGradient id="g-toty" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16408f"/><stop offset=".5" stop-color="#0a2156"/><stop offset="1" stop-color="#030a1f"/></linearGradient>
+    <radialGradient id="g-totyglow" cx=".62" cy=".26" r=".55"><stop offset="0" stop-color="#7fb2ff" stop-opacity=".55"/><stop offset="1" stop-color="#7fb2ff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="g-gold" x1="0" y1="0" x2=".4" y2="1"><stop offset="0" stop-color="#fff4c4"/><stop offset=".3" stop-color="#f1d27a"/><stop offset=".65" stop-color="#d9ad48"/><stop offset="1" stop-color="#b3852b"/></linearGradient>
+    <linearGradient id="g-goldrim2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a6416"/><stop offset=".5" stop-color="#e9c561"/><stop offset="1" stop-color="#7a560f"/></linearGradient>
+    <linearGradient id="g-silver" x1="0" y1="0" x2=".4" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".35" stop-color="#d9dee4"/><stop offset=".7" stop-color="#b3bbc4"/><stop offset="1" stop-color="#8e98a3"/></linearGradient>
+    <linearGradient id="g-silverrim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6d7681"/><stop offset=".5" stop-color="#eef1f4"/><stop offset="1" stop-color="#5e6670"/></linearGradient>
+    <linearGradient id="g-bronze" x1="0" y1="0" x2=".4" y2="1"><stop offset="0" stop-color="#f6d2ac"/><stop offset=".35" stop-color="#d9a06c"/><stop offset=".7" stop-color="#b47645"/><stop offset="1" stop-color="#8a5530"/></linearGradient>
+    <linearGradient id="g-bronzerim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6b3c1c"/><stop offset=".5" stop-color="#e8b585"/><stop offset="1" stop-color="#5c3216"/></linearGradient>
+    <clipPath id="clip-in"><path d="M10 46 L74 46 Q113 11 200 11 Q287 11 326 46 L390 46 L390 482 Q390 528 341 550 L200 591 L59 550 Q10 528 10 482 Z"/></clipPath>
+    <symbol id="bg-toty" viewBox="0 0 400 600">
+      <path d="M2 40 L70 40 Q110 2 200 2 Q290 2 330 40 L398 40 L398 484 Q398 536 344 558 L200 600 L56 558 Q2 536 2 484 Z" fill="url(#g-goldrim)"/>
+      <g clip-path="url(#clip-in)">
+        <rect width="400" height="600" fill="url(#g-toty)"/>
+        <rect width="400" height="600" fill="url(#g-totyglow)"/>
+        <polygon points="250,0 330,0 120,600 40,600" fill="#9cc4ff" opacity=".10"/>
+        <polygon points="350,0 372,0 162,600 140,600" fill="#ffd56b" opacity=".18"/>
+        <g fill="#ffe08a"><circle cx="58" cy="300" r="2"/><circle cx="350" cy="96" r="2.5"/><circle cx="330" cy="330" r="1.6"/><circle cx="84" cy="420" r="1.4"/><circle cx="300" cy="470" r="2"/><circle cx="120" cy="70" r="1.6"/></g>
+        <path d="M352 60 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4z" fill="#ffe08a" opacity=".9"/>
+        <path d="M52 470 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3z" fill="#ffe08a" opacity=".8"/>
+      </g>
+      <path d="M16 52 L78 52 Q115 18 200 18 Q285 18 322 52 L384 52 L384 479 Q384 522 337 543 L200 584 L63 543 Q16 522 16 479 Z" fill="none" stroke="url(#g-goldrim)" stroke-width="1.5" opacity=".75"/>
+    </symbol>
+    <symbol id="bg-gold" viewBox="0 0 400 600">
+      <path d="M2 40 L70 40 Q110 2 200 2 Q290 2 330 40 L398 40 L398 484 Q398 536 344 558 L200 600 L56 558 Q2 536 2 484 Z" fill="url(#g-goldrim2)"/>
+      <g clip-path="url(#clip-in)">
+        <rect width="400" height="600" fill="url(#g-gold)"/>
+        <polygon points="250,0 330,0 120,600 40,600" fill="#ffffff" opacity=".16"/>
+        <polygon points="350,0 368,0 158,600 140,600" fill="#ffffff" opacity=".22"/>
+      </g>
+    </symbol>
+    <symbol id="bg-silver" viewBox="0 0 400 600">
+      <path d="M2 40 L70 40 Q110 2 200 2 Q290 2 330 40 L398 40 L398 484 Q398 536 344 558 L200 600 L56 558 Q2 536 2 484 Z" fill="url(#g-silverrim)"/>
+      <g clip-path="url(#clip-in)">
+        <rect width="400" height="600" fill="url(#g-silver)"/>
+        <polygon points="250,0 330,0 120,600 40,600" fill="#ffffff" opacity=".22"/>
+        <polygon points="350,0 368,0 158,600 140,600" fill="#ffffff" opacity=".3"/>
+      </g>
+    </symbol>
+    <symbol id="bg-bronze" viewBox="0 0 400 600">
+      <path d="M2 40 L70 40 Q110 2 200 2 Q290 2 330 40 L398 40 L398 484 Q398 536 344 558 L200 600 L56 558 Q2 536 2 484 Z" fill="url(#g-bronzerim)"/>
+      <g clip-path="url(#clip-in)">
+        <rect width="400" height="600" fill="url(#g-bronze)"/>
+        <polygon points="250,0 330,0 120,600 40,600" fill="#ffffff" opacity=".14"/>
+        <polygon points="350,0 368,0 158,600 140,600" fill="#ffffff" opacity=".2"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand-row">
+      <div class="brand">
+        <h1>FUT de los <span>Pibes</span></h1>
+        <p>Las cartas suben y bajan según los votos de cada partido.</p>
+      </div>
+      <button class="btn small" id="admin-btn" type="button" hidden>Admin</button>
+    </div>
+    <div id="banner" class="banner" hidden></div>
+    <nav class="tabs" role="tablist" aria-label="Secciones">
+      <button class="tab" role="tab" id="tab-cartas" aria-selected="true" aria-controls="view-cartas">Cartas</button>
+      <button class="tab" role="tab" id="tab-partidos" aria-selected="false" aria-controls="view-partidos">Partidos</button>
+      <button class="tab" role="tab" id="tab-tabla" aria-selected="false" aria-controls="view-tabla">Goleadores</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <section id="view-cartas" role="tabpanel" aria-labelledby="tab-cartas">
+      <div class="bar">
+        <h2>Ranking</h2>
+        <button class="btn" id="add-player" type="button" data-admin hidden>+ Agregar jugador</button>
+      </div>
+      <div class="legend" aria-label="Tipos de carta">
+        <span><i style="background:#16408f;box-shadow:inset 0 0 0 2px #e8c463"></i>TOTY</span>
+        <span><i style="background:#e2bc5a"></i>Oro · 75+</span>
+        <span><i style="background:#c3c9d1"></i>Plata · 65–74</span>
+        <span><i style="background:#c98a55"></i>Bronce · menos de 65</span>
+      </div>
+      <p class="note">Tocá una carta para ver su historial.</p>
+      <div id="grid" class="grid"></div>
+    </section>
+
+    <section id="view-partidos" role="tabpanel" aria-labelledby="tab-partidos" hidden>
+      <div class="bar">
+        <h2>Partidos</h2>
+        <button class="btn primary" id="add-match" type="button" data-admin hidden>+ Nuevo partido</button>
+      </div>
+      <p class="note">Después de cada partido se cargan los goles y asistencias y se abre la votación. Cada uno toca “Votar”, elige su nombre y le pone nota del 1 al 10 a los demás. Con nota promedio de 7 o más suben todas las stats, con menos de 5 bajan. Cada gol suma +1 a TIR y cada asistencia +1 a PAS (hasta +2 por partido), y el MVP suma +1 a todo.</p>
+      <div id="matches" class="list"></div>
+    </section>
+
+    <section id="view-tabla" role="tabpanel" aria-labelledby="tab-tabla" hidden>
+      <div class="bar"><h2>Goleadores y estadísticas</h2></div>
+      <div id="tabla"></div>
+    </section>
+  </div>
+</main>
+
+<div id="overlay" class="overlay" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" id="sheet"></div>
+</div>
+<div id="toast" class="toast" role="status" hidden></div>
+
+<script type="module">
+import {FIREBASE_CONFIG,ADMIN_UID} from './firebase-config.js';
+const SDK='https://www.gstatic.com/firebasejs/10.12.2/';
+const K=['rit','tir','pas','reg','def','fis'];
+const KL={rit:'RIT',tir:'TIR',pas:'PAS',reg:'REG',def:'DEF',fis:'FIS'};
+const KN={rit:'Ritmo',tir:'Tiro',pas:'Pase',reg:'Regate',def:'Defensa',fis:'Físico'};
+const POS=['POR','DFC','LD','LI','MCD','MC','MCO','ED','EI','DC'];
+let ST={players:[],matches:[]};
+let MODE='cargando';   // 'nube' (Firebase) | 'local' (solo este navegador)
+let LOADED=false;
+let IS_ADMIN=false;    // solo el admin crea cartas, partidos, abre votaciones y carga stats
+let ME=null;           // usuario de Firebase (anónimo para votar, Google para el admin)
+let FB=null;
+
+const $=s=>document.querySelector(s);
+const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+const num=(v,d)=>{const n=parseInt(v,10);return Number.isFinite(n)?n:d};
+const uid=()=>'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const fmtDate=s=>{const p=String(s||'').split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:esc(s)};
+const safePhoto=s=>typeof s==='string'&&/^(fotos\/[\w.-]+|data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+)$/.test(s)?s:'';
+const P=id=>ST.players.find(p=>p.id===id);
+const clean=o=>JSON.parse(JSON.stringify(o));
+function toast(t){const el=$('#toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2600)}
+function banner(t){const b=$('#banner');b.textContent=t||'';b.hidden=!t}
+
+const CONFIGURED=!!(FIREBASE_CONFIG&&FIREBASE_CONFIG.apiKey&&!/^PEGAR/.test(FIREBASE_CONFIG.apiKey));
+
+/* ---------- datos: Firebase o local ---------- */
+async function seedData(){try{return await (await fetch('datos-iniciales.json',{cache:'no-store'})).json()}catch(e){return{players:[],matches:[]}}}
+
+async function startLocal(){
+  MODE='local';IS_ADMIN=true;let d=null;
+  try{d=JSON.parse(localStorage.getItem('fut-estado'))}catch(x){}
+  ST=d&&Array.isArray(d.players)?d:await seedData();ST.matches=ST.matches||[];
+  LOADED=true;
+  banner('Modo prueba: todavía no está configurado Firebase (firebase-config.js). Los cambios se guardan solo en este navegador.');
+  render();
+}
+function saveLocal(fn){fn(ST);localStorage.setItem('fut-estado',JSON.stringify(ST));render()}
+
+async function startCloud(){
+  const [A,F,U]=await Promise.all(['app','firestore','auth'].map(n=>import(SDK+'firebase-'+n+'.js')));
+  const app=A.initializeApp(FIREBASE_CONFIG);
+  FB={db:F.getFirestore(app),auth:U.getAuth(app),F,U};
+  MODE='nube';
+  const raw={players:null,matches:null,votes:null};
+  const rebuild=()=>{
+    if(!raw.players||!raw.matches||!raw.votes)return;
+    const vm={};raw.votes.forEach(v=>{(vm[v.mid]=vm[v.mid]||{})[v.voter]=v});
+    ST={players:raw.players,matches:raw.matches.map(m=>({...m,votes:vm[m.id]||{}}))};
+    LOADED=true;render();
+  };
+  const fail=e=>{console.error(e);banner('No se pudieron leer los datos ('+(e.code||e.message)+'). Revisá que Firestore esté creado y que las reglas estén publicadas.')};
+  ['players','matches','votes'].forEach(c=>F.onSnapshot(F.collection(FB.db,c),s=>{raw[c]=s.docs.map(d=>({...d.data(),id:d.id}));rebuild()},fail));
+  U.onAuthStateChanged(FB.auth,u=>{
+    ME=u;IS_ADMIN=!!u&&!u.isAnonymous&&u.uid===ADMIN_UID;
+    if(!u)U.signInAnonymously(FB.auth).catch(e=>{console.warn(e);banner('No se pudo iniciar sesión anónima ('+(e.code||e.message)+'). Activá "Anónimo" en Firebase → Authentication.')});
+    else if(!u.isAnonymous&&!IS_ADMIN)showUid(u);
+    render();
+  });
+}
+async function adminLogin(){
+  const {U}=FB;
+  try{await U.signInWithPopup(FB.auth,new U.GoogleAuthProvider())}
+  catch(e){if(!/popup-closed|cancelled-popup/.test(e.code||''))toast('No se pudo entrar ('+(e.code||'error')+')')}
+}
+function adminLogout(){return FB.U.signOut(FB.auth)}  // después entra solo como anónimo
+function showUid(u){
+  openSheet(head('Esta cuenta no es admin')+`
+    <p class="note">Entraste como ${esc(u.email||'')} pero esta cuenta no está configurada como administradora. Si sos el dueño de la web, copiá este código y pegalo como <b>ADMIN_UID</b> en <b>firebase-config.js</b> y en las reglas de Firestore:</p>
+    <div class="uid">${esc(u.uid)}</div>
+    <div class="foot"><button class="btn" type="button" id="uid-copy">Copiar</button><button class="btn primary" type="button" id="uid-out">Salir</button></div>`,
+  sh=>{sh.querySelector('#uid-copy').onclick=()=>navigator.clipboard.writeText(u.uid).then(()=>toast('Copiado'),()=>{});
+       sh.querySelector('#uid-out').onclick=()=>{closeSheet();adminLogout()}});
+}
+
+const store={
+  async savePlayer(id,data){
+    if(MODE==='local')return saveLocal(s=>{const i=s.players.findIndex(x=>x.id===id);if(i>=0)s.players[i]={...s.players[i],...data};else s.players.push({id,...data})});
+    const {F,db}=FB;const {id:_,...prev}=P(id)||{};
+    await F.setDoc(F.doc(db,'players',id),clean({...prev,...data}));
+  },
+  async deletePlayer(id){
+    if(MODE==='local')return saveLocal(s=>{s.players=s.players.filter(x=>x.id!==id);s.matches.forEach(m=>{m.players=(m.players||[]).filter(x=>x!==id)})});
+    const {F,db}=FB;const b=F.writeBatch(db);b.delete(F.doc(db,'players',id));
+    ST.matches.filter(m=>(m.players||[]).includes(id)).forEach(m=>b.update(F.doc(db,'matches',m.id),{players:F.arrayRemove(id)}));
+    await b.commit();
+  },
+  async saveMatch(id,data){
+    if(MODE==='local')return saveLocal(s=>{const x=s.matches.find(y=>y.id===id);if(x)Object.assign(x,data);else s.matches.push({id,createdAt:Date.now(),votes:{},...data})});
+    const {F,db}=FB;const {votes:_v,id:_i,...prev}=ST.matches.find(m=>m.id===id)||{createdAt:Date.now()};
+    await F.setDoc(F.doc(db,'matches',id),clean({...prev,...data}));
+  },
+  async deleteMatch(id){
+    if(MODE==='local')return saveLocal(s=>{s.matches=s.matches.filter(x=>x.id!==id)});
+    const {F,db}=FB;const q=await F.getDocs(F.query(F.collection(db,'votes'),F.where('mid','==',id)));
+    const b=F.writeBatch(db);q.forEach(d=>b.delete(d.ref));b.delete(F.doc(db,'matches',id));await b.commit();
+  },
+  async setVoting(id,open){
+    if(MODE==='local')return saveLocal(s=>{const x=s.matches.find(y=>y.id===id);if(x)x.votingOpen=open});
+    const {F,db}=FB;await F.updateDoc(F.doc(db,'matches',id),{votingOpen:open});
+  },
+  async vote(mid,voter,ratings,mvp){
+    if(MODE==='local')return saveLocal(s=>{const x=s.matches.find(y=>y.id===mid);if(!x)return;x.votes=x.votes||{};x.votes[voter]={ratings,mvp,at:Date.now()}});
+    if(!ME)throw Object.assign(new Error('sin sesión'),{code:'no-auth'});
+    const {F,db}=FB;await F.setDoc(F.doc(db,'votes',mid+'__'+voter),{mid,voter,ratings,mvp:mvp||'',uid:ME.uid,at:Date.now()});
+  },
+  async seed(){
+    const d=await seedData();
+    if(MODE==='local')return saveLocal(s=>{s.players=d.players||[];s.matches=[]});
+    const {F,db}=FB;const b=F.writeBatch(db);(d.players||[]).forEach(p=>{const {id,...rest}=p;b.set(F.doc(db,'players',id),rest)});await b.commit();
+  }
+};
+
+/* ---------- cálculo de stats ---------- */
+function compute(){
+  const out={};
+  ST.players.forEach(p=>{const b=p.base||{};out[p.id]={ovr:num(p.ovr,60),stats:Object.fromEntries(K.map(k=>[k,num(b[k],50)])),hist:[],last:0,pj:0,g:0,a:0,mvp:0,notas:[]}});
+  const ms=ST.matches.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))||(a.createdAt||0)-(b.createdAt||0));
+  const res={};
+  ms.forEach(m=>{
+    const votes=Object.entries(m.votes||{});
+    const mc={};votes.forEach(([voter,v])=>{if(v.mvp&&v.mvp!==voter)mc[v.mvp]=(mc[v.mvp]||0)+1});
+    const top=Math.max(0,...Object.values(mc));
+    const mvps=top>0?Object.keys(mc).filter(k=>mc[k]===top):[];
+    const rows=[];
+    (m.players||[]).forEach(pid=>{
+      const c=out[pid];if(!c)return;
+      const g=Math.max(0,num((m.goals||{})[pid],0)),a=Math.max(0,num((m.assists||{})[pid],0));
+      const rs=votes.filter(([voter,v])=>voter!==pid&&v.ratings&&num(v.ratings[pid],0)>0).map(([,v])=>clamp(num(v.ratings[pid],0),1,10));
+      const avg=rs.length?rs.reduce((x,y)=>x+y,0)/rs.length:null;
+      const d=avg==null?0:clamp(Math.round((avg-6)/1.5),-3,3);
+      const isMvp=mvps.includes(pid);
+      c.pj++;c.g+=g;c.a+=a;if(isMvp)c.mvp++;if(avg!=null)c.notas.push(avg);
+      let sum=0;
+      K.forEach(k=>{const before=c.stats[k];let add=d+(isMvp?1:0);if(k==='tir')add+=Math.min(g,2);if(k==='pas')add+=Math.min(a,2);c.stats[k]=clamp(before+add,1,99);sum+=c.stats[k]-before});
+      const od=Math.round(sum/6);c.ovr=clamp(c.ovr+od,40,99);c.last=od;
+      c.hist.push({mid:m.id,avg,n:rs.length,od,isMvp,g,a});
+      rows.push({pid,avg,n:rs.length,od,isMvp,g,a});
+    });
+    res[m.id]={rows,votes:votes.length};
+  });
+  return{players:out,matches:res};
+}
+function tierOf(p,c){if(p.special==='toty')return'toty';if(c.ovr>=75)return'gold';if(c.ovr>=65)return'silver';return'bronze'}
+
+function cardHTML(p,c,big){
+  const tier=tierOf(p,c),url=safePhoto(p.photo);
+  const delta=c.last?`<div class="c-delta ${c.last>0?'up':'down'}">${c.last>0?'▲ +'+c.last:'▼ '+c.last}</div>`:'';
+  const photo=url?`<img class="c-photo" src="${url}" alt="">`:`<svg class="c-nophoto" viewBox="0 0 44 56" aria-hidden="true"><circle cx="22" cy="16" r="12" fill="currentColor"/><path d="M0 56 C0 38 10 31 22 31 C34 31 44 38 44 56Z" fill="currentColor"/></svg>`;
+  const tag=tier==='toty'?'<div class="c-tag">TOTY</div>':'';
+  const stats=K.map(k=>`<div><b>${KL[k]}</b><span>${c.stats[k]}</span></div>`).join('');
+  const label=`${esc(p.name)}, ${c.ovr} de media, ${esc(p.pos||'')}`;
+  const el=big?'div':'button';
+  return `<${el} class="card t-${tier}${big?' big':''}" ${big?'role="img"':'type="button" data-open="'+esc(p.id)+'"'} aria-label="${label}">
+    <svg class="bg" aria-hidden="true"><use href="#bg-${tier}"/></svg>${tag}${photo}
+    <div class="c-left"><div class="c-ovr">${c.ovr}</div><div class="c-pos">${esc(p.pos||'')}</div>${delta}</div>
+    <div class="c-name">${esc(p.name||'Sin nombre')}</div><div class="c-rule"></div>
+    <div class="c-stats">${stats}</div><div class="c-trait">${esc(p.trait||'')}</div>
+  </${el}>`;
+}
+function avatar(pid){const p=P(pid),u=p&&safePhoto(p.photo);return u?`<img class="av" src="${u}" alt="">`:`<span class="av" aria-hidden="true"></span>`}
+const sign=n=>n>0?'+'+n:String(n);
+const cls=n=>n>0?'up':n<0?'down':'';
+
+/* ---------- pantallas ---------- */
+function render(){
+  document.querySelectorAll('[data-admin]').forEach(el=>el.hidden=!IS_ADMIN);
+  const ab=$('#admin-btn');ab.hidden=MODE!=='nube';ab.textContent=IS_ADMIN?'Salir de admin':'Admin';
+
+  const C=compute();
+  const ps=ST.players.slice().sort((a,b)=>C.players[b.id].ovr-C.players[a.id].ovr||String(a.name).localeCompare(String(b.name)));
+  $('#grid').innerHTML=!LOADED?'<div class="empty" style="grid-column:1/-1">Cargando cartas…</div>':
+    ps.length?ps.map((p,i)=>`<div class="slot"><div class="rank">#${i+1}</div>${cardHTML(p,C.players[p.id])}</div>`).join(''):
+    `<div class="empty" style="grid-column:1/-1">Todavía no hay cartas.${IS_ADMIN?' <br><br><button class="btn primary small" type="button" data-seed>Cargar cartas iniciales</button>':''}</div>`;
+
+  const ms=ST.matches.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))||(b.createdAt||0)-(a.createdAt||0));
+  $('#matches').innerHTML=ms.length?ms.map(m=>matchHTML(m,C)).join(''):'<div class="empty">Todavía no hay partidos.</div>';
+
+  const rows=ps.map(p=>({p,c:C.players[p.id]})).sort((x,y)=>y.c.g-x.c.g||y.c.a-x.c.a||y.c.mvp-x.c.mvp);
+  $('#tabla').innerHTML=`<div class="box scroll"><table class="res"><thead><tr><th>#</th><th>Jugador</th><th class="num">Goles</th><th class="num">Asist.</th><th class="num">MVP</th><th class="num">PJ</th><th class="num">Nota prom.</th><th class="num">Media</th></tr></thead><tbody>${
+    rows.map((r,i)=>{const prom=r.c.notas.length?(r.c.notas.reduce((a,b)=>a+b,0)/r.c.notas.length).toFixed(1):'–';
+      return `<tr><td>${i+1}</td><td><div class="who">${avatar(r.p.id)}<span>${esc(r.p.name)}</span></div></td><td class="num"><strong>${r.c.g}</strong></td><td class="num">${r.c.a}</td><td class="num">${r.c.mvp}</td><td class="num">${r.c.pj}</td><td class="num">${prom}</td><td class="num">${r.c.ovr}</td></tr>`}).join('')
+  }</tbody></table></div>`;
+}
+function matchHTML(m,C){
+  const r=C.matches[m.id]||{rows:[],votes:0};
+  const rows=r.rows.filter(x=>P(x.pid)).sort((a,b)=>(b.avg||0)-(a.avg||0)||b.g-a.g);
+  const open=!!m.votingOpen;
+  const acts=(open||IS_ADMIN?`<button class="btn primary small" type="button" data-vote="${esc(m.id)}">Votar</button>`:'')+
+    (IS_ADMIN?`<button class="btn small" type="button" data-toggle="${esc(m.id)}">${open?'Cerrar votación':'Abrir votación'}</button><button class="btn small" type="button" data-editmatch="${esc(m.id)}">Editar</button>`:'');
+  return `<article class="match">
+    <div class="match-head">
+      <div><h3>${esc(m.title||'Partido')}</h3><div class="meta"><span>${fmtDate(m.date)}</span><span>·</span><span>${(m.players||[]).length} jugadores</span><span>·</span><span>${r.votes} ${r.votes===1?'voto':'votos'}</span>${m.result?`<span>·</span><span>${esc(m.result)}</span>`:''}<span class="pill ${open?'open':'closed'}">${open?'Votación abierta':'Votación cerrada'}</span></div></div>
+      <div class="actions">${acts}</div>
+    </div>
+    <div class="scroll"><table class="res"><thead><tr><th>Jugador</th><th class="num">Nota</th><th class="num">Goles</th><th class="num">Asist.</th><th class="num">Media</th></tr></thead><tbody>${
+      rows.map(x=>`<tr><td><div class="who">${avatar(x.pid)}<span>${esc(P(x.pid).name)}</span>${x.isMvp?' <span class="pill mvp">MVP</span>':''}</div></td><td class="num">${x.avg!=null?x.avg.toFixed(1):'–'}</td><td class="num">${x.g||'–'}</td><td class="num">${x.a||'–'}</td><td class="num ${cls(x.od)}">${x.od?sign(x.od):'–'}</td></tr>`).join('')
+    }</tbody></table></div>
+  </article>`;
+}
+
+/* ---------- ventanas ---------- */
+let lastFocus=null;
+function openSheet(html,mount){
+  lastFocus=document.activeElement;$('#sheet').innerHTML=html;$('#overlay').hidden=false;document.body.style.overflow='hidden';
+  if(mount)mount($('#sheet'));const f=$('#sheet').querySelector('input,select,button:not(.x)');if(f)f.focus();
+}
+function closeSheet(){if($('#overlay').hidden)return;$('#overlay').hidden=true;$('#sheet').innerHTML='';document.body.style.overflow='';if(lastFocus&&lastFocus.focus)lastFocus.focus()}
+$('#overlay').addEventListener('click',e=>{if(e.target.id==='overlay'||e.target.closest('.x'))closeSheet()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#overlay').hidden)closeSheet()});
+const head=t=>`<div class="sheet-head"><h2 id="sheet-title">${t}</h2><button class="x" type="button" aria-label="Cerrar"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M3 3l12 12M15 3L3 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>`;
+async function save(op,okMsg,errEl,deniedMsg){
+  try{await op();closeSheet();toast(okMsg)}
+  catch(e){
+    console.error(e);
+    const msg=e&&e.code==='permission-denied'?(deniedMsg||'No tenés permiso para hacer esto.'):
+      e&&e.code==='no-auth'?'Conectando… probá de nuevo en un segundo.':'No se pudo guardar. Revisá la conexión y probá de nuevo.';
+    if(errEl){errEl.textContent=msg;errEl.hidden=false}else toast(msg);
+  }
+}
+
+/* detalle de jugador */
+function openPlayer(id){
+  const p=P(id);if(!p)return;const c=compute().players[id];const b=p.base||{};
+  const st=K.map(k=>{const d=c.stats[k]-num(b[k],50);return `<tr><td>${KN[k]}</td><td class="num">${num(b[k],50)}</td><td class="num"><strong>${c.stats[k]}</strong></td><td class="num ${cls(d)}">${sign(d)}</td></tr>`}).join('');
+  const od=c.ovr-num(p.ovr,60);
+  const hist=c.hist.slice().reverse().map(h=>{const m=ST.matches.find(x=>x.id===h.mid)||{};return `<tr><td>${esc(m.title||'Partido')} <span class="note">${fmtDate(m.date)}</span></td><td class="num">${h.avg!=null?h.avg.toFixed(1):'–'}</td><td class="num">${h.g}</td><td class="num">${h.a}</td><td class="num ${cls(h.od)}">${sign(h.od)}</td><td>${h.isMvp?'<span class="pill mvp">MVP</span>':''}</td></tr>`}).join('');
+  openSheet(head(esc(p.name||'Jugador'))+`
+    <div class="detail">${cardHTML(p,c,true)}
+      <div class="info">
+        <div class="scroll"><table class="res"><thead><tr><th>Stat</th><th class="num">Inicial</th><th class="num">Ahora</th><th class="num">Cambio</th></tr></thead><tbody>${st}<tr><td>Media</td><td class="num">${num(p.ovr,60)}</td><td class="num"><strong>${c.ovr}</strong></td><td class="num ${cls(od)}">${sign(od)}</td></tr></tbody></table></div>
+        <div class="meta"><span>${c.pj} PJ</span><span>·</span><span>${c.g} goles</span><span>·</span><span>${c.a} asist.</span><span>·</span><span>${c.mvp} MVP</span></div>
+        ${hist?`<div class="scroll"><table class="res"><thead><tr><th>Partido</th><th class="num">Nota</th><th class="num">G</th><th class="num">A</th><th class="num">Media</th><th></th></tr></thead><tbody>${hist}</tbody></table></div>`:'<p class="note">Todavía no jugó partidos cargados.</p>'}
+      </div>
+    </div>
+    ${IS_ADMIN?'<div class="foot"><button class="btn primary" type="button" id="edit-player">Editar carta</button></div>':''}`,
+  sh=>{const b=sh.querySelector('#edit-player');if(b)b.onclick=()=>openPlayerForm(id)});
+}
+
+/* foto: se achica y se guarda dentro de los datos */
+function fileToData(file){return new Promise((ok,ko)=>{const img=new Image();const u=URL.createObjectURL(file);img.onload=()=>{const s=Math.min(1,400/img.width);const cv=document.createElement('canvas');cv.width=Math.round(img.width*s);cv.height=Math.round(img.height*s);cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);URL.revokeObjectURL(u);let d=cv.toDataURL('image/webp',.85);if(!d.startsWith('data:image/webp'))d=cv.toDataURL('image/png');ok(d)};img.onerror=()=>{URL.revokeObjectURL(u);ko()};img.src=u})}
+
+function openPlayerForm(id){
+  if(!IS_ADMIN)return;
+  const p=id?P(id):{name:'',pos:'MC',ovr:70,base:{rit:70,tir:70,pas:70,reg:70,def:70,fis:70},special:'',trait:'',photo:''};
+  let photo=p.photo||'';const b=p.base||{};
+  openSheet(head(id?'Editar carta':'Nuevo jugador')+`
+    <form id="pform" novalidate>
+      <div class="row">
+        <div class="field"><label for="pf-name">Nombre</label><input class="input" id="pf-name" maxlength="18" value="${esc(p.name)}"></div>
+        <div class="field"><label for="pf-pos">Posición</label><select class="input" id="pf-pos">${POS.map(x=>`<option${x===p.pos?' selected':''}>${x}</option>`).join('')}</select></div>
+        <div class="field"><label for="pf-ovr">Media inicial</label><input class="input" id="pf-ovr" type="number" inputmode="numeric" min="40" max="99" value="${num(p.ovr,70)}"></div>
+      </div>
+      <div class="field"><span class="lbl">Stats iniciales</span>
+        <div class="stats6">${K.map(k=>`<div class="field"><label for="pf-${k}">${KL[k]}</label><input class="input" id="pf-${k}" type="number" inputmode="numeric" min="1" max="99" value="${num(b[k],70)}"></div>`).join('')}</div>
+        <p class="note">Los votos de los partidos se suman arriba de estos números.</p>
+      </div>
+      <div class="row">
+        <div class="field"><label for="pf-trait">Apodo o rasgo (abajo de la carta)</label><input class="input" id="pf-trait" maxlength="22" value="${esc(p.trait||'')}"></div>
+        <label class="check"><input type="checkbox" id="pf-toty"${p.special==='toty'?' checked':''}> Carta TOTY</label>
+      </div>
+      <div class="field"><span class="lbl">Foto</span>
+        <div class="photo-pick"><img id="pf-prev" alt="" ${safePhoto(photo)?`src="${safePhoto(photo)}"`:'hidden'}>
+          <label class="btn small" for="pf-file" style="cursor:pointer">Cambiar foto</label>
+          <input id="pf-file" type="file" accept="image/png,image/jpeg,image/webp" style="position:absolute;width:1px;height:1px;opacity:0">
+        </div>
+        <p class="note">Queda mejor un PNG con el fondo ya sacado (por ejemplo con remove.bg).</p>
+      </div>
+      <div class="err" id="pf-err" hidden></div>
+      <div class="foot">
+        ${id?'<button class="btn danger" type="button" id="pf-del">Eliminar</button>':''}
+        <button class="btn" type="button" id="pf-cancel">Cancelar</button>
+        <button class="btn primary" type="submit">Guardar</button>
+      </div>
+    </form>`,
+  sh=>{
+    const err=sh.querySelector('#pf-err');
+    sh.querySelector('#pf-file').onchange=async e=>{const f=e.target.files[0];if(!f)return;err.hidden=true;
+      try{photo=await fileToData(f);const im=sh.querySelector('#pf-prev');im.src=photo;im.hidden=false}catch(x){err.textContent='No se pudo leer esa imagen. Probá con un PNG o JPG.';err.hidden=false}};
+    sh.querySelector('#pf-cancel').onclick=closeSheet;
+    const del=sh.querySelector('#pf-del');
+    if(del)del.onclick=()=>{if(del.dataset.sure){save(()=>store.deletePlayer(id),'Jugador eliminado',err)}else{del.dataset.sure='1';del.textContent='Tocá otra vez para eliminar'}};
+    sh.querySelector('#pform').onsubmit=e=>{e.preventDefault();
+      const name=sh.querySelector('#pf-name').value.trim();if(!name){err.textContent='Ponele un nombre.';err.hidden=false;return}
+      const data={name,pos:sh.querySelector('#pf-pos').value,ovr:clamp(num(sh.querySelector('#pf-ovr').value,70),40,99),
+        base:Object.fromEntries(K.map(k=>[k,clamp(num(sh.querySelector('#pf-'+k).value,70),1,99)])),
+        special:sh.querySelector('#pf-toty').checked?'toty':'',trait:sh.querySelector('#pf-trait').value.trim(),photo};
+      save(()=>store.savePlayer(id||uid(),data),'Carta guardada',err);
+    };
+  });
+}
+
+/* partido: quién jugó, goles, asistencias y si la votación está abierta */
+function openMatchForm(mid){
+  if(!IS_ADMIN)return;
+  const m=mid?ST.matches.find(x=>x.id===mid):{title:'',date:today(),result:'',players:ST.players.map(p=>p.id),goals:{},assists:{},votingOpen:true};
+  if(!m)return;
+  const ids=ST.players.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name))).map(p=>p.id);
+  openSheet(head(mid?'Editar partido':'Nuevo partido')+`
+    <form id="mform" novalidate>
+      <div class="row">
+        <div class="field"><label for="mf-title">Nombre</label><input class="input" id="mf-title" maxlength="40" value="${esc(m.title)}" placeholder="Ej: Fútbol 5 del jueves"></div>
+        <div class="field"><label for="mf-date">Fecha</label><input class="input" id="mf-date" type="date" value="${esc(m.date||today())}"></div>
+        <div class="field"><label for="mf-res">Resultado</label><input class="input" id="mf-res" maxlength="20" value="${esc(m.result||'')}" placeholder="Ej: 7 a 5"></div>
+      </div>
+      <label class="check"><input type="checkbox" id="mf-open"${m.votingOpen?' checked':''}> Votación abierta (todos pueden votar)</label>
+      <div class="field"><span class="lbl">Quién jugó, goles y asistencias</span>
+        ${ids.map(pid=>`<div class="prow"><div class="prow-head">
+          <label class="check"><input type="checkbox" name="mp" value="${esc(pid)}"${(m.players||[]).includes(pid)?' checked':''}> <span class="who">${avatar(pid)}<strong>${esc(P(pid).name)}</strong></span></label>
+          <div class="ga"><label class="lbl" for="g-${esc(pid)}">Goles</label><input class="input" id="g-${esc(pid)}" type="number" inputmode="numeric" min="0" max="30" value="${num((m.goals||{})[pid],0)}">
+          <label class="lbl" for="a-${esc(pid)}">Asist.</label><input class="input" id="a-${esc(pid)}" type="number" inputmode="numeric" min="0" max="30" value="${num((m.assists||{})[pid],0)}"></div>
+        </div></div>`).join('')}
+      </div>
+      <div class="err" id="mf-err" hidden></div>
+      <div class="foot">
+        ${mid?'<button class="btn danger" type="button" id="mf-del">Borrar partido</button>':''}
+        <button class="btn" type="button" id="mf-cancel">Cancelar</button>
+        <button class="btn primary" type="submit">${mid?'Guardar':'Crear partido'}</button>
+      </div>
+    </form>`,
+  sh=>{
+    const err=sh.querySelector('#mf-err');
+    sh.querySelector('#mf-cancel').onclick=closeSheet;
+    const del=sh.querySelector('#mf-del');
+    if(del)del.onclick=()=>{if(del.dataset.sure){save(()=>store.deleteMatch(mid),'Partido borrado',err)}else{del.dataset.sure='1';del.textContent='Tocá otra vez (se pierden los votos)'}};
+    sh.querySelector('#mform').onsubmit=e=>{e.preventDefault();
+      const players=[...sh.querySelectorAll('input[name=mp]:checked')].map(i=>i.value);
+      if(players.length<2){err.textContent='Marcá al menos dos jugadores.';err.hidden=false;return}
+      const goals={},assists={};players.forEach(pid=>{const g=num(sh.querySelector('#g-'+CSS.escape(pid)).value,0),a=num(sh.querySelector('#a-'+CSS.escape(pid)).value,0);if(g>0)goals[pid]=clamp(g,0,30);if(a>0)assists[pid]=clamp(a,0,30)});
+      const data={title:sh.querySelector('#mf-title').value.trim()||'Partido',date:sh.querySelector('#mf-date').value||today(),result:sh.querySelector('#mf-res').value.trim(),players,goals,assists,votingOpen:sh.querySelector('#mf-open').checked};
+      save(()=>store.saveMatch(mid||uid(),data),'Partido guardado',err);
+    };
+  });
+}
+
+/* votar */
+function openVote(mid){
+  const m=ST.matches.find(x=>x.id===mid);if(!m)return;
+  if(!m.votingOpen&&!IS_ADMIN)return toast('La votación de este partido está cerrada');
+  const ps=(m.players||[]).filter(P);
+  const votedBy=pid=>(m.votes||{})[pid];
+  openSheet(head('Votar')+`
+    <p class="note">${esc(m.title||'Partido')} · ${fmtDate(m.date)}</p>
+    <div class="field"><label for="v-who">¿Quién sos?</label><select class="input" id="v-who"><option value="">Elegí tu nombre</option>${ps.map(pid=>`<option value="${esc(pid)}">${esc(P(pid).name)}${votedBy(pid)?' ✓ ya votó':''}</option>`).join('')}</select></div>
+    <div id="v-body"></div>`,
+  sh=>{
+    const who=sh.querySelector('#v-who');
+    who.onchange=()=>{
+      const me=who.value,body=sh.querySelector('#v-body');if(!me){body.innerHTML='';return}
+      const prev=votedBy(me)||{},pr=prev.ratings||{};const others=ps.filter(x=>x!==me);
+      if(MODE==='nube'&&prev.uid&&!IS_ADMIN&&(!ME||prev.uid!==ME.uid)){
+        body.innerHTML='<p class="err">Ya votó alguien con este nombre desde otro celular o navegador. Solo se puede cambiar desde el mismo dispositivo. Si no fuiste vos, avisale al admin.</p>';return}
+      body.innerHTML=`<form id="vform" novalidate>
+        ${others.map(pid=>`<div class="prow"><div class="prow-head"><div class="who">${avatar(pid)}<strong>${esc(P(pid).name)}</strong></div>
+          <label class="chip"><input type="radio" name="mvp" value="${esc(pid)}"${prev.mvp===pid?' checked':''}><span>MVP</span></label></div>
+          <fieldset style="border:0;padding:0;margin:0"><legend class="lbl" style="margin-bottom:6px">Nota</legend><div class="scale">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<label class="chip"><input type="radio" name="r-${esc(pid)}" value="${n}"${num(pr[pid],0)===n?' checked':''}><span>${n}</span></label>`).join('')}</div></fieldset>
+        </div>`).join('')}
+        <div class="err" id="v-err" hidden></div>
+        <div class="foot"><button class="btn" type="button" id="v-cancel">Cancelar</button><button class="btn primary" type="submit">Guardar votos</button></div>
+      </form>`;
+      body.querySelector('#v-cancel').onclick=closeSheet;
+      body.querySelector('#vform').onsubmit=e=>{e.preventDefault();const f=e.target,err=body.querySelector('#v-err');
+        const ratings={};others.forEach(pid=>{const r=f.querySelector(`input[name="r-${CSS.escape(pid)}"]:checked`);if(r)ratings[pid]=num(r.value,0)});
+        if(!Object.keys(ratings).length){err.textContent='Ponele nota a al menos un jugador.';err.hidden=false;return}
+        const mv=f.querySelector('input[name=mvp]:checked');
+        save(()=>store.vote(mid,me,ratings,mv?mv.value:''),'Votos guardados',err,'No se pudo votar: la votación está cerrada o alguien ya votó con ese nombre desde otro dispositivo.');
+      };
+    };
+  });
+}
+
+/* ---------- navegación ---------- */
+const TABS=['cartas','partidos','tabla'];
+function setTab(t){TABS.forEach(x=>{$('#tab-'+x).setAttribute('aria-selected',String(x===t));$('#view-'+x).hidden=x!==t});try{localStorage.setItem('fut-tab',t)}catch(e){}}
+TABS.forEach(t=>$('#tab-'+t).onclick=()=>setTab(t));
+try{const t=localStorage.getItem('fut-tab');if(TABS.includes(t))setTab(t)}catch(e){}
+document.addEventListener('click',e=>{
+  const o=e.target.closest('[data-open]');if(o)return openPlayer(o.dataset.open);
+  const v=e.target.closest('[data-vote]');if(v)return openVote(v.dataset.vote);
+  const em=e.target.closest('[data-editmatch]');if(em)return openMatchForm(em.dataset.editmatch);
+  const tg=e.target.closest('[data-toggle]');if(tg){const m=ST.matches.find(x=>x.id===tg.dataset.toggle);if(m&&IS_ADMIN)save(()=>store.setVoting(m.id,!m.votingOpen),m.votingOpen?'Votación cerrada':'Votación abierta');return}
+  const sd=e.target.closest('[data-seed]');if(sd&&IS_ADMIN){sd.disabled=true;save(()=>store.seed(),'Cartas cargadas');return}
+});
+$('#add-player').onclick=()=>openPlayerForm(null);
+$('#add-match').onclick=()=>openMatchForm(null);
+$('#admin-btn').onclick=()=>IS_ADMIN?adminLogout():adminLogin();
+
+render();
+(CONFIGURED?startCloud():startLocal()).catch(e=>{console.error(e);banner('No se pudo conectar con Firebase: '+(e.message||e))});
+</script>
+</body>
+</html>
