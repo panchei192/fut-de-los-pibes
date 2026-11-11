@@ -14,7 +14,7 @@ Si alguien vota haciéndose pasar por otro, como admin podés borrar el partido 
 1. Entrá a https://console.firebase.google.com → **Agregar proyecto** (Analytics no hace falta).
 2. **Compilación → Firestore Database → Crear base de datos** → modo producción → región `southamerica-east1` (o la que quieras).
 3. **Compilación → Authentication → Comenzar**. En *Métodos de acceso* activá **Google** y **Anónimo**.
-4. En **Authentication → Configuración → Dominios autorizados** agregá `TU-USUARIO.github.io`.
+4. En **Authentication → Configuración → Dominios autorizados** agregá `panchei192.github.io`.
 5. **⚙ Configuración del proyecto → Tus apps → `</>` (Web)** → registrala → copiá el objeto `firebaseConfig` y pegalo en `firebase-config.js`.
 6. Subí el cambio, abrí la web, tocá **Admin** y entrá con tu Google. Te muestra tu **UID**: pegalo en `ADMIN_UID` de `firebase-config.js` y en `firestore.rules`.
 7. **Firestore Database → Reglas**: pegá todo `firestore.rules` y tocá **Publicar**.
