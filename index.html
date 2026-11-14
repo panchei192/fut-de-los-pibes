@@ -137,6 +137,8 @@ form{display:flex;flex-direction:column;gap:16px}
 .potm{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:12px 14px;border-radius:10px;background:linear-gradient(90deg,#3a2f0b,#1b231e);border:1px solid #6b5716}
 .potm-tag{font-family:var(--display);font-weight:800;font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
 .potm .av{width:40px;height:40px}
+.potm.worst{background:linear-gradient(90deg,#3d1612,#1b231e);border-color:#7a2a20}
+.potm.worst .potm-tag{color:var(--bad)}
 .teams{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:stretch}
 @media (max-width:560px){.teams{grid-template-columns:1fr}.teams .vs{text-align:center}}
 .team{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
@@ -492,8 +494,14 @@ function matchHTML(m,C){
   const allVoted=total>0&&r.votes>=total;
   const open=!!m.votingOpen&&!allVoted;
   const done=!open;
-  const stars=done?rows.filter(x=>x.isMvp):[];
-  const potm=stars.length?`<div class="potm"><span class="potm-tag">${stars.length>1?'Jugadores del partido':'Jugador del partido'}</span>${stars.map(x=>`<div class="who">${avatar(x.pid)}<strong>${esc(P(x.pid).name)}</strong>${x.avg!=null?`<span class="note">nota ${x.avg.toFixed(1)}</span>`:''}</div>`).join('')}</div>`:'';
+  // mejor: el MVP más votado (si nadie votó MVP, la nota más alta). peor: la nota promedio más baja.
+  const rated=rows.filter(x=>x.avg!=null);
+  const hi=rated.length?Math.max(...rated.map(x=>x.avg)):null,lo=rated.length?Math.min(...rated.map(x=>x.avg)):null;
+  let stars=done?rows.filter(x=>x.isMvp):[];
+  if(done&&!stars.length&&hi!=null)stars=rated.filter(x=>x.avg===hi);
+  const worst=done&&lo!=null&&lo!==hi?rated.filter(x=>x.avg===lo&&!stars.includes(x)):[];
+  const banner2=(cls,tag,list)=>list.length?`<div class="potm${cls}"><span class="potm-tag">${tag}</span>${list.map(x=>`<div class="who">${avatar(x.pid)}<strong>${esc(P(x.pid).name)}</strong>${x.avg!=null?`<span class="note">nota ${x.avg.toFixed(1)}</span>`:''}</div>`).join('')}</div>`:'';
+  const potm=banner2('',stars.length>1?'Jugadores del partido':'Jugador del partido',stars)+banner2(' worst',worst.length>1?'Peores del partido':'Peor del partido',worst);
   const acts=(open||IS_ADMIN?`<button class="btn primary small" type="button" data-vote="${esc(m.id)}">Votar</button>`:'')+
     (IS_ADMIN?`${allVoted?'':`<button class="btn small" type="button" data-toggle="${esc(m.id)}">${open?'Cerrar votación':'Abrir votación'}</button>`}<button class="btn small" type="button" data-editmatch="${esc(m.id)}">Editar</button>`:'');
   const tm=m.teams||{},guests=m.guests||[];
