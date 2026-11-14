@@ -431,7 +431,7 @@ function compute(){
       c.pj++;c.g+=g;c.a+=a;if(isMvp)c.mvp++;if(avg!=null)c.notas.push(avg);if(res1==='G')c.pg++;else if(res1==='E')c.pe++;else if(res1==='P')c.pp++;
       let sum=0;
       K.forEach(k=>{const before=c.stats[k];let add=d+(isMvp?1:0);if(k==='tir')add+=Math.min(g,2);if(k==='pas')add+=Math.min(a,2);c.stats[k]=clamp(before+add,1,99);sum+=c.stats[k]-before});
-      const od=Math.round(sum/6);c.ovr=clamp(c.ovr+od,40,99);c.last=od;
+      const od=Math.min(4,Math.round(sum/6));c.ovr=clamp(c.ovr+od,40,99);c.last=od;
       c.hist.push({mid:m.id,avg,n:rs.length,od,isMvp,g,a,res:res1});
       rows.push({pid,avg,n:rs.length,od,isMvp,g,a,team:(m.teams||{})[pid]||''});
     });
