@@ -996,6 +996,8 @@ function openMatchForm(mid,preset){
       players.forEach(pid=>{const t=teamOf(pid);if(t)teams[pid]=t});
       const sa=sh.querySelector('#mf-sa').value.trim(),sb=sh.querySelector('#mf-sb').value.trim();
       if((sa==='')!==(sb==='')){err.textContent='Poné los goles de los dos equipos (o dejá los dos vacíos).';err.hidden=false;return}
+      const noTeam=players.filter(pid=>!teams[pid]).map(pid=>P(pid)?P(pid).name:pid).concat(guests.filter(g=>!g.team).map(g=>g.name));
+      if(sa!==''&&noTeam.length&&Object.keys(teams).length){err.textContent='Falta elegir equipo (A o B) para: '+noTeam.join(', ')+'. Si no, no les cuenta el partido ganado o perdido.';err.hidden=false;return}
       const data={title:sh.querySelector('#mf-title').value.trim()||'Partido',date:sh.querySelector('#mf-date').value||today(),
         nameA:sh.querySelector('#mf-na').value.trim(),nameB:sh.querySelector('#mf-nb').value.trim(),
         scoreA:sa===''?null:clamp(num(sa,0),0,99),scoreB:sb===''?null:clamp(num(sb,0),0,99),
