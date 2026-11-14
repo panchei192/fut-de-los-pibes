@@ -422,20 +422,30 @@ function compute(){
     const top=Math.max(0,...Object.values(mc));
     const mvps=top>0?Object.keys(mc).filter(k=>mc[k]===top):[];
     const rows=[];
-    (m.players||[]).forEach(pid=>{
-      const c=out[pid];if(!c)return;
+    const ratingsOf=pid=>votes.filter(([voter,v])=>voter!==pid&&v.ratings&&num(v.ratings[pid],0)>0).map(([,v])=>clamp(num(v.ratings[pid],0),1,10));
+    const avgOf=pid=>{const rs=ratingsOf(pid);return rs.length?rs.reduce((x,y)=>x+y,0)/rs.length:null};
+    // los 2 peores (nota promedio más baja) restan 1 a todo, solo cuando terminó la votación
+    const inMatch=(m.players||[]).filter(pid=>out[pid]);
+    const finished=!m.votingOpen||(inMatch.length>0&&votes.length>=inMatch.length);
+    const ranked=inMatch.map(pid=>({pid,avg:avgOf(pid)})).filter(x=>x.avg!=null&&!mvps.includes(x.pid)).sort((x,y)=>x.avg-y.avg);
+    const cut=ranked.length>=3?ranked[1].avg:null;
+    const hiAvg=ranked.length?ranked[ranked.length-1].avg:null;
+    const worst=finished&&cut!=null&&cut<hiAvg?ranked.filter(x=>x.avg<=cut).map(x=>x.pid):[];
+    inMatch.forEach(pid=>{
+      const c=out[pid];
       const g=Math.max(0,num((m.goals||{})[pid],0)),a=Math.max(0,num((m.assists||{})[pid],0));
-      const rs=votes.filter(([voter,v])=>voter!==pid&&v.ratings&&num(v.ratings[pid],0)>0).map(([,v])=>clamp(num(v.ratings[pid],0),1,10));
-      const avg=rs.length?rs.reduce((x,y)=>x+y,0)/rs.length:null;
+      const rs=ratingsOf(pid);
+      const avg=avgOf(pid);
+      const isWorst=worst.includes(pid);
       const d=avg==null?0:clamp(Math.round((avg-6)/1.5),-3,3);
       const isMvp=mvps.includes(pid);
       const res1=outcome(m,(m.teams||{})[pid]);
       c.pj++;c.g+=g;c.a+=a;if(isMvp)c.mvp++;if(avg!=null)c.notas.push(avg);if(res1==='G')c.pg++;else if(res1==='E')c.pe++;else if(res1==='P')c.pp++;
       let sum=0;
-      K.forEach(k=>{const before=c.stats[k];let add=d+(isMvp?1:0);if(k==='tir')add+=Math.min(g,2);if(k==='pas')add+=Math.min(a,2);add=Math.min(4,add);c.stats[k]=clamp(before+add,1,99);sum+=c.stats[k]-before});
+      K.forEach(k=>{const before=c.stats[k];let add=d+(isMvp?1:0)-(isWorst?1:0);if(k==='tir')add+=Math.min(g,2);if(k==='pas')add+=Math.min(a,2);add=Math.min(4,add);c.stats[k]=clamp(before+add,1,99);sum+=c.stats[k]-before});
       const od=Math.min(4,Math.round(sum/6));c.ovr=clamp(c.ovr+od,40,99);c.last=od;
-      c.hist.push({mid:m.id,avg,n:rs.length,od,isMvp,g,a,res:res1});
-      rows.push({pid,avg,n:rs.length,od,isMvp,g,a,team:(m.teams||{})[pid]||''});
+      c.hist.push({mid:m.id,avg,n:rs.length,od,isMvp,isWorst,g,a,res:res1});
+      rows.push({pid,avg,n:rs.length,od,isMvp,isWorst,g,a,team:(m.teams||{})[pid]||''});
     });
     res[m.id]={rows,votes:votes.length};
   });
